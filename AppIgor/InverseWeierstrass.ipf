@@ -2,9 +2,9 @@
 #pragma rtGlobals=3	
 
 #pragma ModuleName = ModInverseWeierstrass
-#include ":::IgorCode:Util:IoUtil"
-#include ":::IgorCode:Util:PlotUtil"
-#include ":::IgorCode:Util:OperatingSystemUtil"
+#include "::UtilIgorPro:Util:IoUtil"
+#include "::UtilIgorPro:Util:PlotUtil"
+#include "::UtilIgorPro:Util:OperatingSystemUtil"
 
 
 Static StrConstant path_to_iwt_folder = "Research/Perkins/Projects/PythonCommandLine/InverseWeierstrass/"
