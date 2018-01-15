@@ -7,3 +7,6 @@
 [submodule "UtilIgorPro"]
 	path = UtilIgorPro
 	url = https://github.com/prheenan/UtilIgorPro.git
+[submodule "UtilForce"]
+	path = UtilForce
+	url = https://github.com/prheenan/UtilForce.git
