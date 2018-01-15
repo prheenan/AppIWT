@@ -4,3 +4,6 @@
 [submodule "UtilGeneral"]
 	path = UtilGeneral
 	url = https://github.com/prheenan/UtilGeneral.git
+[submodule "UtilIgorPro"]
+	path = UtilIgorPro
+	url = https://github.com/prheenan/UtilIgorPro.git
