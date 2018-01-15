@@ -4,7 +4,7 @@
 #include "::InverseWeierstrass"
 #pragma ModuleName = ModMainIWT
 
-Static StrConstant DEF_INPUT_REL_TO_BASE =  "IgorUtil/PythonApplications/InverseWeierstrass/Example/input.pxp"
+Static StrConstant DEF_INPUT_REL_TO_BASE =  "Applications/AppIWT/AppIgor/Example/input.pxp"
 
 Static Function Main_Windows()
 	// Runs a simple IWT on patrick's windows setup

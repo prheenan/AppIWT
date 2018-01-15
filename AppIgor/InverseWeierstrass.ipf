@@ -7,7 +7,7 @@
 #include "::UtilIgorPro:Util:OperatingSystemUtil"
 
 
-Static StrConstant path_to_iwt_folder = "Applications/InverseWeierstrass/AppPython/"
+Static StrConstant path_to_iwt_folder = "Applications/AppIWT/AppPython/"
 Static StrConstant iwt_file = "main_iwt.py"
 
 Structure InverseWeierstrassOutput
