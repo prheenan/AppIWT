@@ -9,9 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys,Util
 sys.path.append("../../../../../../")
-from GeneralUtil.python import CheckpointUtilities,GenUtilities
-from FitUtil.EnergyLandscapes.InverseWeierstrass.Python.Code import \
-    InverseWeierstrass,WeierstrassUtil
+from UtilGeneral import CheckpointUtilities,GenUtilities
+from Code import InverseWeierstrass,WeierstrassUtil
 from Util import Simulation
 
 def _f_assert(exp,f,atol=0,rtol=1e-9,**d):

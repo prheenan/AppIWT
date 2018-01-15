@@ -10,8 +10,7 @@ import matplotlib.pyplot as plt
 import sys,copy
 from scipy.interpolate import LSQUnivariateSpline
 
-from FitUtil.EnergyLandscapes.InverseWeierstrass.Python.Code import \
-    InverseWeierstrass
+from Code import InverseWeierstrass
 
 def _default_slice_func(obj,s):
     """

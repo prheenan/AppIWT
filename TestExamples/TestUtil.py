@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 sys.path.append("../../../../../../")
-from GeneralUtil.python import CheckpointUtilities,GenUtilities
+from UtilGeneral import CheckpointUtilities,GenUtilities
 
 from Util import Simulation
 
