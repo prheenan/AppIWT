@@ -22,7 +22,7 @@ def run():
     Returns:
         This is a description of what is returned.
     """
-    os.system(r"python3 main_iwt.py -number_of_pairs 16" + \
+    os.system(r"python main_iwt.py -number_of_pairs 16" + \
               r" -number_of_bins 80" + \
               r" -f_one_half 10e-12" + \
               r" -k_T 4.1e-21" + \
