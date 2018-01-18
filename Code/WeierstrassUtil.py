@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import sys,copy
 from scipy.interpolate import LSQUnivariateSpline
 
-from Code import InverseWeierstrass
+from . import InverseWeierstrass
 
 def _default_slice_func(obj,s):
     """
