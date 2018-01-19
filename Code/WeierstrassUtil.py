@@ -137,6 +137,8 @@ def get_unfold_and_refold_objects(data,number_of_pairs,flip_forces=False,
     # POST: pairs has each slice (approach/retract pair) that we want
     # break up into retract and approach (ie: unfold,refold)
     unfold,refold = [],[]
+    assert 'z_0' in kwargs , "Must provide z_0 as kwargs argument"
+    assert 'v' in kwargs , "Must provide v as kwargs argument"
     for p in pairs:
         unfold_tmp,refold_tmp = \
             split_into_iwt_objects(p,flip_forces=flip_forces,
@@ -219,6 +221,7 @@ def iwt_ramping_experiment(data,number_of_pairs,kT,v,
     """
 
     """
+    assert 'z_0' in kw , "Must provide z_0"
     unfold,refold = \
         get_unfold_and_refold_objects(data,
                                       number_of_pairs=number_of_pairs,
