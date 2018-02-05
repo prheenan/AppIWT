@@ -384,7 +384,8 @@ def _check_positive_controls(landscape_both,single,single_rev,**kwargs):
     np.testing.assert_allclose(cmd_line_offset.q+z_0,landscape_both.q,
                                atol=0,rtol=1e-6)
                         
-def _concatenate_data(state_fwd,state_rev):
+
+def _concatenate_data(state_fwd,state_rev=None):
     """
     Returns: single IWT object, concatenating all in state_fwd and state_rev
     """
@@ -392,10 +393,17 @@ def _concatenate_data(state_fwd,state_rev):
     single.Force = []
     single.Extension = []
     single.Time = []
-    for fwd,rev in zip(state_fwd,state_rev):
-        single.Force += list(fwd.Force) + list(rev.Force)
-        single.Extension += list(fwd.Extension) + list(rev.Extension)
-        single.Time += list(fwd.Time) + list(rev.Time)
+    if state_rev is not None:
+        for fwd,rev in zip(state_fwd,state_rev):
+            single.Force += list(fwd.Force) + list(rev.Force)
+            single.Extension += list(fwd.Extension) + list(rev.Extension)
+            single.Time += list(fwd.Time) + list(rev.Time)
+    else:
+        # just have the one direction...
+        for fwd in state_fwd:
+            single.Force += list(fwd.Force)
+            single.Extension += list(fwd.Extension)
+            single.Time += list(fwd.Time)
     # combine all the data
     N = len(state_fwd)
     single.Force = np.array(single.Force)
@@ -616,7 +624,47 @@ def TestHummer2010():
     _check_filtering(landscape)    
     _check_filtering(landscape_both)
     # make sure the forward and reverse only stuff work OK
-    
+    check_unidirectional(state_fwd,state_rev,landscape,landscape_rev,
+                         **kwargs)
+
+def _equal_landscapes(one,two,atol_m=5e-10,rtol_m=1e-9,atol_J=0,rtol_J=1e-9):
+    """
+    :param one: first landscape
+    :param two:  second landscape
+    :param atol_m: absolute tolerance in landscape extension
+    :param rtol_m: relative tolerance in landscape extension
+    :param atol_J:  absolute tolerance in landscape energy
+    :param rtol_J: relative tolerance in landscape energy
+    :return:  nothing, throws error if things don't go well.
+    """
+    np.testing.assert_allclose(one.q,two.q,atol=atol_m,rtol=rtol_m)
+    np.testing.assert_allclose(one.G_0,two.G_0,atol=atol_J,rtol=rtol_J)
+
+def _check_iwt_ramp(data,expected_landscape,**kw):
+    """
+    :param data: first argument to  iwt_ramping_experiment
+    :param expected_landscape: what we expect out
+    :param kw: additional arguments to iwt_ramping_experiment
+    :return: nothing, throws error if something goes wrong
+    """
+    actual_landscape = WeierstrassUtil.iwt_ramping_experiment(data,**kw)
+    _equal_landscapes(actual_landscape, expected_landscape)
+
+def check_unidirectional(state_fwd,state_rev,landscape_fwd,landscape_rev,
+                         **kwargs):
+    """
+    :param state_fwd: the forward data
+    :param state_rev:  the reverse data
+    :param landscape_fwd:  the expected forward landscape
+    :param landscape_rev: the expected reverse landscape
+    :param kwargs: passed to WeierstrassUtil.iwt_ramping_experiment
+    :return: noothing, throws an rerror if it doesnt work
+    """
+    single_fwd = _concatenate_data(state_fwd)
+    single_rev = _concatenate_data(state_rev)
+    _check_iwt_ramp(single_fwd, landscape_fwd,**dict(unfold_only=True,**kwargs))
+    _check_iwt_ramp(single_rev, landscape_rev,**dict(refold_only=True,**kwargs))
+
     
 def assert_landscapes_disagree(new_obj,expected_landscape):
     # the landscapes are normalized to zero; so we ignore the first point 
