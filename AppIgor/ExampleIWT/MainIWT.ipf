@@ -6,7 +6,7 @@
 #pragma ModuleName = ModMainIWT
 
 Static StrConstant DEF_INPUT_REL_TO_BASE =  "Data/input.pxp"
-Static StrConstant DEF_PATH_NAME = "Example"
+Static StrConstant DEF_PATH_NAME = "ExampleIWT"
 
 Static Function Main_Windows()
 	// Runs a simple IWT on patrick's windows setup
@@ -41,6 +41,8 @@ Static Function Main([base,input_file])
 	opt.kbT = 4.1e-21
 	opt.f_one_half_N = 8e-12
 	opt.flip_forces = 0
+	opt.unfold_only = 0
+	opt.refold_only = 0
 	opt.meta.path_to_input_file = input_file
 	opt.meta.path_to_research_directory = base
 	// Make the output waves

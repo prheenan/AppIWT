@@ -51,11 +51,11 @@ def parse_and_run():
                " of fraction_velocity_fit"
     parser.add_argument('-velocity',metavar="velocity",type=float,default=0,
                         help=vel_help,required=True)
-    parser.add_argument('-only_unfolding',metavar="only_unfolding",type=float,
+    parser.add_argument('-unfold_only',metavar="unfold_only",type=bool,
                         default=False,
                         help="If true, data is only unfolding (default: both)",
                         required=False)
-    parser.add_argument('-only_refolding',metavar="only_refolding",type=float,
+    parser.add_argument('-refold_only',metavar="refold_only",type=bool,
                         default=False,
                         help="If true, data is only refolding (default: both)",
                         required=False)
@@ -81,7 +81,10 @@ def parse_and_run():
                       v=args.velocity,
                       flip_forces=args.flip_forces,
                       kT=args.k_T,
-                      z_0=args.z_0)
+                      z_0=args.z_0,
+                      refold_only=args.refold_only,
+                      unfold_only=args.unfold_only,
+                  )
     LandscapeObj = WeierstrassUtil.iwt_ramping_experiment(RawData[0],
                                                           **iwt_kwargs)
     # filter the landscape object 

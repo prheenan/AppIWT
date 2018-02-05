@@ -46,10 +46,10 @@ Structure InverseWeierstrassOptions
 	//		if this isn't set properly, the extension determined will be off by a constant offset, but the landscape
 	//		energy values will still be OK. defaults to 0. 
 	//
-	//		only_unfolding: If true (1), then the data is assumed to be <number_of_pairs>
+	//		unfold_only: If true (1), then the data is assumed to be <number_of_pairs>
 	//		ramps from z0 to z1, without the refolding region
 	
-	//		only_refolding: If true (1), then the data is assumed to be <number_of_pairs>
+	//		refold_only: If true (1), then the data is assumed to be <number_of_pairs>
 	//		ramps from z1 to z0, without the unfolding region
 	//
 	//		path_to_input_file: where the pxp you want to analyze is. Should have a single wave 
@@ -63,8 +63,8 @@ Structure InverseWeierstrassOptions
 	Variable velocity_m_per_s
 	Variable z_0
 	Variable kbT 
-	Variable only_unfolding
-	Variable only_refolding
+	Variable unfold_only
+	Variable refold_only
 	Struct RuntimeMetaInfo meta
 EndStructure
 
@@ -107,8 +107,8 @@ Static Function /S python_command(opt)
 	ModOperatingSystemUtil#append_numeric(Output,"number_of_bins",opt.number_of_bins)
 	ModOperatingSystemUtil#append_numeric(Output,"f_one_half",opt.f_one_half_N)
 	ModOperatingSystemUtil#append_numeric(Output,"flip_forces",opt.flip_forces)
-	ModOperatingSystemUtil#append_numeric(Output,"only_refolding",opt.only_refolding)
-	ModOperatingSystemUtil#append_numeric(Output,"only_unfolding",opt.only_unfolding)
+	ModOperatingSystemUtil#append_numeric(Output,"refold_only",opt.refold_only)
+	ModOperatingSystemUtil#append_numeric(Output,"unfold_only",opt.unfold_only)
 	// Default arguments aren't appended if they aren't needed
 	ModOperatingSystemUtil#append_if_not_default(Output,"k_T",opt.kbT)
 	ModOperatingSystemUtil#append_if_not_default(Output,"z_0",opt.z_0)
