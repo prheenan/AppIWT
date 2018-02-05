@@ -29,7 +29,8 @@ def run():
               r" -velocity 20e-9" + \
               r" -flip_forces 0" + \
               r" -file_input ../Data/input.pxp"+ \
-              r" -file_output landscape.csv")
+              r" -file_output landscape.csv",
+              r" -unfold_only 1")
 
     pass
 
