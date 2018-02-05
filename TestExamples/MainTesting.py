@@ -615,6 +615,7 @@ def TestHummer2010():
     _check_negative_controls(landscape_both,single,single_rev,**kwargs)
     _check_filtering(landscape)    
     _check_filtering(landscape_both)
+    # make sure the forward and reverse only stuff work OK
     
     
 def assert_landscapes_disagree(new_obj,expected_landscape):

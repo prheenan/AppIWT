@@ -96,23 +96,45 @@ def split_into_iwt_objects(d,z_0,v,
     slice_folding = slice(idx_end_of_unfolding,idx_end_of_folding)
     fold_tmp = slice_func(d,slice_folding)
     # convert all the unfolding objects to IWT data
-    try:
-        IwtData = ToIWTObject(unfold_tmp,**kw)
-        IwtData_fold = ToIWTObject(fold_tmp,**kw)
-    except (AttributeError,KeyError) as e:
-        # Rob messes with the notes; he also gives the velocities
-        IwtData = RobTimeSepForceToIWT(unfold_tmp,v=v,**kw)
-        IwtData_fold = RobTimeSepForceToIWT(fold_tmp,v=v,**kw)
-    # switch the velocities of all ToIWTObject folding objects..
-    # set the velocity and Z functions
-    delta_t = IwtData.Time[-1]-IwtData.Time[0]
-    z_f = z_0 + v * delta_t
-    IwtData.SetOffsetAndVelocity(z_0,v)
-    IwtData_fold.SetOffsetAndVelocity(z_f,-v)
+    iwt_data = safe_iwt_obj(unfold_tmp,v,**kw)
+    iwt_data_fold = safe_iwt_obj(fold_tmp,v,**kw)
+    # set the velocities 
+    IwtData,IwtData_fold = \
+        set_velocities(z_0,v,iwt_data=iwt_data,iwt_data_fold=iwt_data_fold)
     return IwtData,IwtData_fold    
 
+def safe_iwt_obj(data_tmp,v,**kw):
+    """
+    :param data_tmp: what we want to convert to an IWTObject (e.g. TimeSepForce)
+    :param v: velocity
+    :**kw: passed to ToIWTObject and/or RobTimeSepForceToIWT
+    :return: IWT object for use in calculation...
+    """
+    try:
+        iwt_data = ToIWTObject(data_tmp,**kw)
+    except (AttributeError,KeyError) as e:
+        # Rob messes with the notes; he also gives the velocities
+        iwt_data = RobTimeSepForceToIWT(data_tmp,v=v,**kw)
+    return iwt_data
+
+def set_velocities(z_0,v,iwt_data=None,iwt_data_fold=None):
+    # switch the velocities of all ToIWTObject folding objects..
+    # set the velocity and Z functions
+    key = iwt_data if iwt_data is not None else iwt_data_fold 
+    delta_t = key.Time[-1]-key.Time[0]
+    z_f = z_0 + v * delta_t
+    if (iwt_data is not None):
+        iwt_data.SetOffsetAndVelocity(z_0,v)
+    if (iwt_data_fold is not None):
+        iwt_data_fold.SetOffsetAndVelocity(z_f,-v)
+    return iwt_data,iwt_data_fold
+
+
+    
+
 def get_unfold_and_refold_objects(data,number_of_pairs,flip_forces=False,
-                                  slice_func=None,**kwargs):
+                                  slice_func=None,unfold_only=False,
+                                  refold_only=False,**kwargs):
     """
     Splits a TimeSepForceObj into number_of_pairs unfold/refold pairs,
     converting into IWT Objects.
@@ -125,6 +147,8 @@ def get_unfold_and_refold_objects(data,number_of_pairs,flip_forces=False,
         get_slice: how to slice the data
 
         slice_func: see split_into_iwt_objects
+        unfold_only / refold_only: if true, data are only unfolding / only
+        refolding (instead of assumed both
         
         kwargs: passed to split_into_iwt_objects
     Returns:
@@ -132,13 +156,28 @@ def get_unfold_and_refold_objects(data,number_of_pairs,flip_forces=False,
     """
     if (slice_func is None):
         slice_func =  _default_slice_func
+    assert 'z_0' in kwargs , "Must provide z_0 as kwargs argument"
+    assert 'v' in kwargs , "Must provide v as kwargs argument"
+    z_0 = kwargs['z_0']
+    v = kwargs['v']
     n = number_of_pairs
     pairs = [slice_func(data,get_slice(data,i,n)) for i in range(n) ]
+    # if we only have unfolding or refolding, just use those...
+    if (refold_only):
+        refold = [safe_iwt_obj(p,v,**kw) for p in pairs]
+        unfold = []
+        refold = [set_velocities(z_0,v,iwt_data=None,iwt_data_fold=p)[-1]
+                  for p in pairs]
+    if (unfold_only):
+        unfold = [safe_iwt_obj(p,v,**kw) for p in pairs]
+        refold = []
+        unfold = [set_velocities(z_0,v,iwt_data=p,iwt_data_fold=None)[0]
+                  for p in pairs]
+    if (unfold_only or refold_only):
+        return unfold,refold
     # POST: pairs has each slice (approach/retract pair) that we want
     # break up into retract and approach (ie: unfold,refold)
     unfold,refold = [],[]
-    assert 'z_0' in kwargs , "Must provide z_0 as kwargs argument"
-    assert 'v' in kwargs , "Must provide v as kwargs argument"
     for p in pairs:
         unfold_tmp,refold_tmp = \
             split_into_iwt_objects(p,flip_forces=flip_forces,

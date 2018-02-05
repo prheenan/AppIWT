@@ -51,6 +51,14 @@ def parse_and_run():
                " of fraction_velocity_fit"
     parser.add_argument('-velocity',metavar="velocity",type=float,default=0,
                         help=vel_help,required=True)
+    parser.add_argument('-only_unfolding',metavar="only_unfolding",type=float,
+                        default=False,
+                        help="If true, data is only unfolding (default: both)",
+                        required=False)
+    parser.add_argument('-only_refolding',metavar="only_refolding",type=float,
+                        default=False,
+                        help="If true, data is only refolding (default: both)",
+                        required=False)
     args = parser.parse_args()
     out_file = os.path.normpath(args.file_output)
     in_file = os.path.normpath(args.file_input)
