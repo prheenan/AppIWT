@@ -43,27 +43,31 @@ def run():
     """
     # run a comparison of fwd,rev,both
     base = "../Data/"
-    plot_both = dict(color='r',linestyle='--',label="Bidirectional")
-    plot_unfold = dict(color='b',linestyle=':',label="Only Unfold")
-    plot_refold = dict(color='k',linestyle='-',label="Only Refold")
+    plot_both = dict(color='b',linestyle='--',label="Bi-directional")
+    plot_unfold = dict(color='m',linestyle=':',label="Only unfold")
+    plot_refold = dict(color='r',linestyle='-',label="Only refold")
     input_files = [ [base + "UnfoldandRefold.pxp","",plot_both],
                     [base + "JustUnfold.pxp","-unfold_only 1",plot_unfold],
                     [base + "JustRefold.pxp","-refold_only 1",plot_refold],
                     ]
+    fig = PlotUtilities.figure()
+    f_one_half_N = 12e-12
     for f,extra_str,plot_opt in input_files:
         # run just the 'normal' IO
-        x_nm,G_kT,tilt = run_single(n_pairs=50,v=50e-9,f_one_half=13e-12,
+        x_nm,G_kT,tilt = run_single(n_pairs=50,v=50e-9,f_one_half=f_one_half_N,
                                     input_file=f,extra_str=extra_str)
-        plt.plot(x_nm,G_kT,**plot_opt)
-        PlotUtilities.lazyLabel("x (nm)",
-                                "$\Delta G_\mathrm{0}$ ($k_\mathrm{B}$T)","")
-    plt.show()
+        plt.plot(x_nm,tilt,**plot_opt)
+        label_y = ("$G_\mathrm{F_{1/2}=" + "{:.0f}".format(f_one_half_N*1e12) +\
+                   "pN}$ ($k_\mathrm{B}$T)")
+        PlotUtilities.lazyLabel("x (nm)",label_y,"")
+    PlotUtilities.savefig(fig,"example_unfold_refold.png")
     # run just the 'normal' IO
     x_nm,G_kT,tilt = \
         run_single(n_pairs=16,v=20e-9,input_file="../Data/input.pxp")
+    fig = PlotUtilities.figure()
     plt.plot(x_nm,G_kT,'r-')
     PlotUtilities.lazyLabel("x (nm)","$G_0$ ($k_\mathrm{B}$T)","")
-    plt.show()
+    PlotUtilities.savefig(fig,"example_bidirectional.png")
      
 
 if __name__ == "__main__":
