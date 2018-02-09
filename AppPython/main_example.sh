@@ -14,6 +14,8 @@ dateStr=`date +%Y-%m-%d:%H:%M:%S`
 # Arguments:
 #### Arg 1: Description
 
+output="landscape.csv"
+rm -f $output
 set -x
 python2 main_iwt.py\
     -number_of_pairs 16\
@@ -23,7 +25,7 @@ python2 main_iwt.py\
     -velocity 20e-9\
     -flip_forces 0 \
     -file_input ../Data/input.pxp \
-    -file_output landscape.csv
+    -file_output $output
 
 
 

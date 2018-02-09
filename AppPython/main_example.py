@@ -22,15 +22,14 @@ def run():
     Returns:
         This is a description of what is returned.
     """
-    os.system(r"python main_iwt.py -number_of_pairs 16" + \
+    os.system(r"python2 main_iwt.py -number_of_pairs 16" + \
               r" -number_of_bins 80" + \
               r" -f_one_half 10e-12" + \
               r" -k_T 4.1e-21" + \
               r" -velocity 20e-9" + \
               r" -flip_forces 0" + \
               r" -file_input ../Data/input.pxp"+ \
-              r" -file_output landscape.csv",
-              r" -unfold_only 1")
+              r" -file_output landscape.csv")
 
     pass
 

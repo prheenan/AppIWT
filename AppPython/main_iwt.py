@@ -15,10 +15,7 @@ from UtilForce.FEC import FEC_Util
 from Code import InverseWeierstrass,WeierstrassUtil
 from UtilGeneral import GenUtilities
 from UtilIgor import PxpLoader
-import argparse
-
-def write_and_close(string):
-    raise RuntimeError(string)
+import argparse,re
 
 
 def parse_and_run():
@@ -62,20 +59,26 @@ def parse_and_run():
     args = parser.parse_args()
     out_file = os.path.normpath(args.file_output)
     in_file = os.path.normpath(args.file_input)
-    flip_forces = args.flip_forces
-    number_of_pairs = args.number_of_pairs
     f_one_half = args.f_one_half
     if (not GenUtilities.isfile(in_file)):
-        write_and_close("File {:s} doesn't exist".format(in_file))
+        raise RuntimeError("File {:s} doesn't exist".format(in_file))
     # # POST: input file exists
     # go ahead and read it
     validation_function = PxpLoader.valid_fec_allow_endings
+    valid_name_pattern = re.compile(r"""
+                                     (?:b')?     # optional non-capturing bytes 
+                                     (\D*)       # optional non-digits preamble
+                                     (\d+)?      # optional digits (for the ID)
+                                     (sep|force) # literal sep or force (req.) 
+                                     (?:')?      # possible, non-capturing bytes 
+                                     """,re.X | re.I)
     RawData = IWT_Util.ReadInAllFiles([in_file],Limit=1,
-                                      ValidFunc=validation_function)
+                                      ValidFunc=validation_function,
+                                      name_pattern=valid_name_pattern)
     # POST: file read sucessfully. should just have the one
     if (not len(RawData) == 1):
-        write_and_close("Need exactly one Force/Separation".\
-                        format(in_file))
+        raise RuntimeError(("Need exactly one Force/Separation".\
+                            format(in_file)))
     # POST: have just one. Go ahead and break it up
     iwt_kwargs = dict(number_of_pairs=args.number_of_pairs,
                       v=args.velocity,
@@ -106,15 +109,7 @@ def parse_and_run():
 
 
 def run():
-    try:
-        parse_and_run()
-    except:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        lines = traceback.format_exception(exc_type, exc_value, 
-                                           exc_traceback)
-        # Log it or whatever here
-        str_out =''.join('!! ' + line for line in lines)
-        print(str_out)
+    parse_and_run()
         
 if __name__ == "__main__":
     run()
