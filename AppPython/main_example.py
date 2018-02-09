@@ -8,9 +8,9 @@ from __future__ import unicode_literals
 import numpy as np
 import matplotlib.pyplot as plt
 import sys,os
-import main_iwt
 
-
+sys.path.append("../")
+from UtilGeneral import PlotUtilities
 
 def run():
     """
@@ -30,8 +30,11 @@ def run():
               r" -flip_forces 0" + \
               r" -file_input ../Data/input.pxp"+ \
               r" -file_output landscape.csv")
-
-    pass
+    input_data = np.loadtxt("landscape.csv",delimiter=",")
+    x_nm,G_kT = input_data[:,0]*1e9,input_data[:,1]/4.1e-21
+    plt.plot(x_nm,G_kT,'r-')
+    PlotUtilities.lazyLabel("x (nm)","$G_0$ ($k_\mathrm{B}$T)","")
+    plt.show()
 
 if __name__ == "__main__":
     run()
