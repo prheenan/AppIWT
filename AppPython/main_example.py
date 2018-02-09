@@ -13,7 +13,8 @@ sys.path.append("../")
 from UtilGeneral import PlotUtilities
 
 def run_single(n_pairs,v,input_file,f_one_half=10e-12,extra_str=""):
-    run_str = (r"python2 main_iwt.py -number_of_pairs {}" + \
+    run_str = (r"//anaconda/bin/python2 main_iwt.py" + \
+               r" -number_of_pairs {}" + \
                r" -number_of_bins 80" + \
                r" -f_one_half {}" + \
                r" -k_T 4.1e-21" + \
@@ -50,12 +51,18 @@ def run():
                     [base + "JustUnfold.pxp","-unfold_only 1",plot_unfold],
                     [base + "JustRefold.pxp","-refold_only 1",plot_refold],
                     ]
-    fig = PlotUtilities.figure()
+    fig = PlotUtilities.figure(figsize=(3.5,6))
     f_one_half_N = 12e-12
     for f,extra_str,plot_opt in input_files:
         # run just the 'normal' IO
         x_nm,G_kT,tilt = run_single(n_pairs=50,v=50e-9,f_one_half=f_one_half_N,
                                     input_file=f,extra_str=extra_str)
+        ax1= plt.subplot(2,1,1)
+        plt.plot(x_nm,G_kT,**plot_opt)
+        label_y = ("$G_0$ ($k_\mathrm{B}$T)")
+        PlotUtilities.lazyLabel("",label_y,"")
+        PlotUtilities.no_x_label(ax=ax1)
+        plt.subplot(2,1,2)
         plt.plot(x_nm,tilt,**plot_opt)
         label_y = ("$G_\mathrm{F_{1/2}=" + "{:.0f}".format(f_one_half_N*1e12) +\
                    "pN}$ ($k_\mathrm{B}$T)")

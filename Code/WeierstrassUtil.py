@@ -163,6 +163,8 @@ def get_unfold_and_refold_objects(data,number_of_pairs,flip_forces=False,
     n = number_of_pairs
     pairs = [slice_func(data,get_slice(data,i,n)) for i in range(n) ]
     # if we only have unfolding or refolding, just use those...
+    assert not (unfold_only and refold_only) , \
+        "Data can't be only unfolding *and* only refolding"
     if (refold_only):
         refold = [safe_iwt_obj(p,v=v) for p in pairs]
         unfold = []

@@ -3,6 +3,7 @@
 
 #pragma ModuleName = ModInverseWeierstrass
 #include "::UtilIgorPro:Util:IoUtil"
+#include "::UtilIgorPro:Util:ErrorUtil"
 #include "::UtilIgorPro:Util:PlotUtil"
 #include "::UtilIgorPro:Util:OperatingSystemUtil"
 
@@ -132,6 +133,18 @@ Static Function /S full_path_to_iwt_main(options)
 	return full_path_to_iwt_folder(options) + iwt_file
 End Function
 
+Static Function check_options_valid(user_opt)
+	// do some validation of the input
+	// Args:
+	// 		options : instance of the InverseWeierstrassOptions struct. 
+	// Returns:
+	//		nothing, throws an error if more suble errors occur related to the options...
+	Struct InverseWeierstrassOptions & user_opt
+	ModErrorUtil#assert( !(user_opt.unfold_only && user_opt.refold_only),msg="Can't specify both unfold only and refold only")
+	ModErrorUtil#assert( user_opt.velocity_m_per_s > 0,msg="Must specify positive velocity")
+End Function
+
+
 Static Function inverse_weierstrass(user_options,output)
 	// Function that calls the IWT python code
 	//
@@ -152,6 +165,7 @@ Static Function inverse_weierstrass(user_options,output)
 	Struct InverseWeierstrassOptions options 
 	options = user_options
 	ModOperatingSystemUtil#get_updated_options(options.meta)
+	check_options_valid(options)
 	// Run the python code 
 	String PythonCommand = ModInverseWeierstrass#python_command(options)	
 	ModOperatingSystemUtil#execute_python(PythonCommand)

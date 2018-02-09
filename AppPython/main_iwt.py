@@ -48,11 +48,11 @@ def parse_and_run():
                " of fraction_velocity_fit"
     parser.add_argument('-velocity',metavar="velocity",type=float,default=0,
                         help=vel_help,required=True)
-    parser.add_argument('-unfold_only',metavar="unfold_only",type=bool,
+    parser.add_argument('-unfold_only',metavar="unfold_only",type=int,
                         default=False,
                         help="If true, data is only unfolding (default: both)",
                         required=False)
-    parser.add_argument('-refold_only',metavar="refold_only",type=bool,
+    parser.add_argument('-refold_only',metavar="refold_only",type=int,
                         default=False,
                         help="If true, data is only refolding (default: both)",
                         required=False)
@@ -70,8 +70,7 @@ def parse_and_run():
                                      (\D*)       # optional non-digits preamble
                                      (\d+)?      # optional digits (for the ID)
                                      (sep|force) # literal sep or force (req.) 
-                                     (?:')?      # possible, non-capturing bytes 
-                                     """,re.X | re.I)
+                                     (?:')?      # possible, non-capturing bytes                                      """,re.X | re.I)
     RawData = IWT_Util.ReadInAllFiles([in_file],Limit=1,
                                       ValidFunc=validation_function,
                                       name_pattern=valid_name_pattern)
@@ -85,8 +84,8 @@ def parse_and_run():
                       flip_forces=args.flip_forces,
                       kT=args.k_T,
                       z_0=args.z_0,
-                      refold_only=args.refold_only,
-                      unfold_only=args.unfold_only,
+                      refold_only=(args.refold_only > 0),
+                      unfold_only=(args.unfold_only > 0),
                   )
     LandscapeObj = WeierstrassUtil.iwt_ramping_experiment(RawData[0],
                                                           **iwt_kwargs)
