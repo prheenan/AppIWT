@@ -57,6 +57,11 @@ def run():
         # run just the 'normal' IO
         x_nm,G_kT,tilt = run_single(n_pairs=50,v=50e-9,f_one_half=f_one_half_N,
                                     input_file=f,extra_str=extra_str)
+        # save out the data
+        header = "# (C) PRH \n #Extension (nm),\t G (kT), \t G_tilt (kT)"
+        fname = f.split("/")[-1]+".csv"
+        np.savetxt(X=np.array((x_nm,G_kT,tilt)).T,fname=fname,
+                   header=header,delimiter=",")
         ax1= plt.subplot(2,1,1)
         plt.plot(x_nm,G_kT,**plot_opt)
         label_y = ("$G_0$ ($k_\mathrm{B}$T)")
