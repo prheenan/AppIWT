@@ -123,7 +123,7 @@ class Landscape(object):
 def ZFuncSimple(obj):
     return obj.Offset + (obj.Velocity * (obj.Time-obj.Time[0]))
 
-class FEC_Pulling_Object:
+class FEC_Pulling_Object(object):
     def __init__(self,Time,Extension,Force,SpringConstant=0.4e-3,
                  Velocity=20e-9,Offset=None,kT=4.1e-21):
         """
