@@ -11,9 +11,15 @@ from scipy.integrate import cumtrapz
 import copy
 from UtilGeneral import CheckpointUtilities,GenUtilities,PlotUtilities
 from scipy.interpolate import interp1d,LSQUnivariateSpline
-from Util import Test
-from Util.Test import _f_assert,HummerData,load_simulated_data
+from SimulationFEC.Util.Test import _f_assert,HummerData,load_simulated_data
 import scipy
+
+def HummerData_Sanit(**kw):
+    f,r = HummerData(**kw)
+    # loop through, convert to Weierstrass objects
+    f = [WeierstrassUtil.ToIWTObject(o,kT=o.kT,Offset=o.Offset) for o in f]
+    r = [WeierstrassUtil.ToIWTObject(o,kT=o.kT,Offset=o.Offset) for o in r]
+    return f,r
 
 def TestWeighting():
     """
@@ -69,7 +75,7 @@ def TestBidirectionalEnsemble():
     reverse get the same answer
     """
     n = 200
-    fwd_objs,rev_objs = HummerData(n=50)
+    fwd_objs,rev_objs = HummerData_Sanit(n=50)
     delta_A_calc = InverseWeierstrass.NumericallyGetDeltaA(fwd_objs,
                                                            rev_objs)
     # the delta_A_calc should make the bennet ratio true. Since we have n_r=n_f,
@@ -557,7 +563,7 @@ def TestHummer2010():
     # go ahead and made the energy landscapes
     kT = 4.1e-21
     f_one_half = 14e-12
-    state_fwd,state_rev = HummerData(n=50)
+    state_fwd,state_rev = HummerData_Sanit(n=50)
     # only look at the data at every x-th point; figure 
     z_example = state_fwd[0].ZFunc(state_fwd[0])
     step_nm = 0.3e-9
