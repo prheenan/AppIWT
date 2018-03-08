@@ -8,10 +8,33 @@ from __future__ import unicode_literals
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.append("../../../../../../")
+
+from . import Simulation
 from UtilGeneral import CheckpointUtilities,GenUtilities
 
-from Util import Simulation
+class SimpleFEC(object):
+    def __init__(self, Time, Extension, Force, SpringConstant=0.4e-3,
+                 Velocity=20e-9,Offset=0, kT=4.1e-21):
+        """
+        :param Time: array of times, units s, length N
+        :param Extension: array of molecular extensions, units m, length N
+        :param Force: array of molecular force, units N, length N
+        :param SpringConstant: spring constant, units N/m
+        :param Velocity: velocity, units m/s
+        :param kT: boltzmann energy, units J
+        """
+        # make copies (by value) of the arrays we need
+        self.kT = kT
+        self.Beta = 1 / kT
+        self.Time = Time.copy()
+        self.Extension = Extension.copy()
+        self.Force = Force.copy()
+        self.SpringConstant = SpringConstant
+        self.Velocity = Velocity
+        self.Offset = Offset
+    @property
+    def Separation(self):
+        return self.Extension
 
 def _f_assert(exp,f,atol=0,rtol=1e-9,**d):
     value = f(**d)
@@ -19,20 +42,30 @@ def _f_assert(exp,f,atol=0,rtol=1e-9,**d):
 
 
 def get_simulated_ensemble(n,**kw):
+    """
+    Returns: at most n curves (n) using the parameters
+
+    Args:
+        n: number of curves 
+        **kw: for Util.Simulation.hummer_force_extension_curve
+    Returns:
+        n IWT objects
+    """
     to_ret = []
     for _ in range(n):
-        t,q,z,f,p = Util.Simulation.hummer_force_extension_curve(**kw)
+        t,q,z,f,p = Simulation.hummer_force_extension_curve(**kw)
         velocity = p["velocity"]
         spring_constant = p['k']
         beta = p['beta']
         kT = 1/beta
         good_idx = np.where( (z > 325e-9) & (z < 425e-9))
+        z0 = z[good_idx][0]
         initial_dict = dict(Time=t[good_idx]-t[good_idx][0],
                             Extension=q[good_idx],
                             Force=f[good_idx],Velocity=velocity,kT=kT,
-                            SpringConstant=spring_constant)
-        tmp = InverseWeierstrass.FEC_Pulling_Object(**initial_dict)
-        tmp.SetOffsetAndVelocity(z[good_idx][0],tmp.Velocity)
+                            SpringConstant=spring_constant,
+                            Offset=z0)
+        tmp = SimpleFEC(**initial_dict)
         to_ret.append(tmp)
     return to_ret
 
@@ -51,26 +84,12 @@ def load_simulated_data(n,cache_dir="./cache"):
     return fwd,rev
 
 def HummerData(seed=42,n=10,**kw):
+    """
+    See: load_simulated_data
+    """
     np.random.seed(seed)
     # POST: the ensemble data (without noise) are OK 
     fwd,rev = load_simulated_data(n=n,**kw)
     # read in the simulateddata 
     #assert_noisy_ensemble_correct(fwd,rev)
     return fwd,rev
-
-
-
-def run():
-    """
-    <Description>
-
-    Args:
-        param1: This is the first param.
-    
-    Returns:
-        This is a description of what is returned.
-    """
-    pass
-
-if __name__ == "__main__":
-    run()

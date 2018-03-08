@@ -7,7 +7,6 @@ from __future__ import unicode_literals
 # This file is used for importing the common utilities classes.
 import numpy as np
 import matplotlib.pyplot as plt
-import sys,copy
 
 def _f_assert(exp,f,atol=1e-6,rtol=1e-9,**d):
     value = f(**d)

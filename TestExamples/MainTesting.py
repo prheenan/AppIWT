@@ -11,7 +11,7 @@ from scipy.integrate import cumtrapz
 import copy
 from UtilGeneral import CheckpointUtilities,GenUtilities,PlotUtilities
 from scipy.interpolate import interp1d,LSQUnivariateSpline
-from SimulationFEC.Util.Test import _f_assert,HummerData,load_simulated_data
+from SimulationFEC.Test import _f_assert,HummerData,load_simulated_data
 import scipy
 
 def HummerData_Sanit(**kw):
