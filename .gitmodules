@@ -10,3 +10,6 @@
 [submodule "UtilForce"]
 	path = UtilForce
 	url = https://github.com/prheenan/UtilForce.git
+[submodule "SimulationFEC"]
+	path = SimulationFEC
+	url = https://github.com/prheenan/SimulationFEC.git
