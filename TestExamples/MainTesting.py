@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import sys
 
 sys.path.append("../")
-from Code import InverseWeierstrass,WeierstrassUtil
+from Code import InverseWeierstrass,WeierstrassUtil,BidirectionalUtil
 from scipy.integrate import cumtrapz
 import copy
 from UtilGeneral import CheckpointUtilities,GenUtilities,PlotUtilities
@@ -76,8 +76,8 @@ def TestBidirectionalEnsemble():
     """
     n = 200
     fwd_objs,rev_objs = HummerData_Sanit(n=50)
-    delta_A_calc = InverseWeierstrass.NumericallyGetDeltaA(fwd_objs,
-                                                           rev_objs)
+    delta_A_calc = BidirectionalUtil.NumericallyGetDeltaA(fwd_objs,
+                                                          rev_objs)
     # the delta_A_calc should make the bennet ratio true. Since we have n_r=n_f,
     # I ignor that part
     beta = fwd_objs[0].Beta
