@@ -1,5 +1,6 @@
 # force floating point division. Can still use integer with //
 from __future__ import division
+from __future__ import absolute_import
 # This file is used for importing the common utilities classes.
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,8 +12,8 @@ from collections import defaultdict
 from scipy.optimize import fminbound,newton,brentq
 from scipy import sparse
 from scipy.interpolate import splev,LSQUnivariateSpline
-from BidirectionalUtil import Exp, NumericallyGetDeltaA, Exp, ForwardWeighted,\
-    ReverseWeighted
+from UtilLandscape.BidirectionalUtil import \
+    Exp, NumericallyGetDeltaA, Exp, ForwardWeighted,ReverseWeighted
 
 
 class _WorkWeighted(object):
