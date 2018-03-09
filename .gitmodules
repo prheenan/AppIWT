@@ -13,3 +13,6 @@
 [submodule "SimulationFEC"]
 	path = SimulationFEC
 	url = https://github.com/prheenan/SimulationFEC.git
+[submodule "UtilLandscape"]
+	path = UtilLandscape
+	url = https://github.com/prheenan/UtilLandscape.git
