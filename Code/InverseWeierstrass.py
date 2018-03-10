@@ -12,7 +12,7 @@ from collections import defaultdict
 from scipy.optimize import fminbound,newton,brentq
 from scipy import sparse
 from scipy.interpolate import splev,LSQUnivariateSpline
-from UtilLandscape.BidirectionalUtil import \
+from .UtilLandscape.BidirectionalUtil import \
     Exp, NumericallyGetDeltaA, Exp, ForwardWeighted,ReverseWeighted
 
 

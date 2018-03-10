@@ -7,7 +7,7 @@ import sys
 
 sys.path.append("../")
 from Code import InverseWeierstrass,WeierstrassUtil
-from UtilLandscape import BidirectionalUtil
+from Code.UtilLandscape import BidirectionalUtil
 from scipy.integrate import cumtrapz
 import copy
 from UtilGeneral import CheckpointUtilities,GenUtilities,PlotUtilities
