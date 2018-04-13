@@ -259,20 +259,26 @@ def _check_slices(single_dir):
     np.testing.assert_allclose(expected_sizes,
                                [d.Force.size for d in single_dir])
 
-def iwt_ramping_experiment(data,number_of_pairs,kT,v,
-                           flip_forces=False,**kw):
+def _iwt_ramping_helper(data,number_of_pairs,kT,v,
+                        flip_forces=False,**kw):
     """
-
+    :param data: single force-extension curve
+    :param number_of_pairs:  how many back and forth ramps there are
+    :param kT: beta,  boltzmann energy, J
+    :param v: velocity, m/s
+    :param flip_forces: if true, multiply all the forces by -1
+    :param kw: keywords to use
+    :return: tuple of unfolding objs,refolding objs, landscape
     """
-    assert 'z_0' in kw , "Must provide z_0"
-    unfold,refold = \
+    assert 'z_0' in kw, "Must provide z_0"
+    unfold, refold = \
         get_unfold_and_refold_objects(data,
                                       number_of_pairs=number_of_pairs,
                                       flip_forces=flip_forces,
-                                      kT=kT,v=v,
-                                      unfold_start_idx=0,**kw)
-    n_un,n_re = len(unfold),len(refold)
-    assert n_un + n_re > 0 , "Need some unfolding or refolding data"
+                                      kT=kT, v=v,
+                                      unfold_start_idx=0, **kw)
+    n_un, n_re = len(unfold), len(refold)
+    assert n_un + n_re > 0, "Need some unfolding or refolding data"
     # do some data checking
     _check_slices(unfold)
     _check_slices(refold)
@@ -285,19 +291,24 @@ def iwt_ramping_experiment(data,number_of_pairs,kT,v,
     n_per_float = (n_data / number_of_pairs)
     upper_bound = int(np.ceil(n_per_float))
     if n_un and n_re:
-        _check_slices([unfold[0],refold[0]])
-        assert 2*n <= upper_bound , "Didn't actually slice the data"
+        _check_slices([unfold[0], refold[0]])
+        assert 2 * n <= upper_bound, "Didn't actually slice the data"
         # make sure we used all the data, +/- 2 per slice
-        np.testing.assert_allclose(2*n,np.floor(n_per_float),atol=2,rtol=0)
+        np.testing.assert_allclose(2 * n, np.floor(n_per_float), atol=2, rtol=0)
     else:
         list_to_check = unfold if n_un > 0 else refold
         sizes_actual = [d.Force.size for d in list_to_check]
         sizes_exp = np.ones(len(sizes_actual)) * upper_bound
-        np.testing.assert_allclose(sizes_actual,sizes_exp,
-                                   atol=number_of_pairs-1)
+        np.testing.assert_allclose(sizes_actual, sizes_exp,
+                                   atol=number_of_pairs - 1)
     # POST: have the unfolding and refolding objects, get the energy landscape
-    LandscapeObj =  InverseWeierstrass.\
-            free_energy_inverse_weierstrass(unfold,refold)  
+    LandscapeObj = InverseWeierstrass. \
+        free_energy_inverse_weierstrass(unfold, refold)
+    return unfold, refold, LandscapeObj
+
+def iwt_ramping_experiment(*args,**kw):
+    _, _, LandscapeObj = \
+        _iwt_ramping_helper(*args,**kw)
     return LandscapeObj
 
 def _filter_single_landscape(landscape_obj,bins,k=3,ext='const',**kw):
