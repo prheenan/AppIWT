@@ -259,8 +259,8 @@ def _check_slices(single_dir):
     np.testing.assert_allclose(expected_sizes,
                                [d.Force.size for d in single_dir])
 
-def _iwt_ramping_helper(data,number_of_pairs,kT,v,
-                        flip_forces=False,**kw):
+def _iwt_ramping_splitter(data,number_of_pairs,kT,v,
+                          flip_forces=False,**kw):
     """
     :param data: single force-extension curve
     :param number_of_pairs:  how many back and forth ramps there are
@@ -268,8 +268,9 @@ def _iwt_ramping_helper(data,number_of_pairs,kT,v,
     :param v: velocity, m/s
     :param flip_forces: if true, multiply all the forces by -1
     :param kw: keywords to use
-    :return: tuple of unfolding objs,refolding objs, landscape
+    :return: tuple of unfolding objs,refolding objs
     """
+
     assert 'z_0' in kw, "Must provide z_0"
     unfold, refold = \
         get_unfold_and_refold_objects(data,
@@ -301,6 +302,13 @@ def _iwt_ramping_helper(data,number_of_pairs,kT,v,
         sizes_exp = np.ones(len(sizes_actual)) * upper_bound
         np.testing.assert_allclose(sizes_actual, sizes_exp,
                                    atol=number_of_pairs - 1)
+    return unfold, refold
+
+def _iwt_ramping_helper(*args,**kw):
+    """
+    :param *args, **kwargs: see  _iwt_ramping_splitter
+    """
+    unfold, refold =  _iwt_ramping_splitter(*args,**kw)
     # POST: have the unfolding and refolding objects, get the energy landscape
     LandscapeObj = InverseWeierstrass. \
         free_energy_inverse_weierstrass(unfold, refold)

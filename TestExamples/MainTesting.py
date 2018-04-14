@@ -175,12 +175,13 @@ def landscape_plot(landscape,landscape_rev,landscape_rev_only,kT,f_one_half):
     xlim = [195,265]
     plt.subplot(2,1,1)
     sanit = lambda x: x - min(x)
+    offset_kT = 20
     # add in the offsets, since we dont simulate before...
-    plt.plot(ToX(ext_fwd),sanit(landscape_rev_kT)+20,color='r',alpha=0.6,
+    plt.plot(ToX(ext_fwd),sanit(landscape_rev_kT)+offset_kT,color='r',alpha=0.6,
              linestyle='-',linewidth=3,label="Bi-directional")
-    plt.plot(ToX(ext_rev),sanit(landscape_fwd_kT)+75,color='b',
+    plt.plot(ToX(ext_rev),sanit(landscape_fwd_kT)+offset_kT,color='b',
              linestyle='--',label="Only Forward")
-    plt.plot(ToX(landscape_rev_only.q),sanit(landscape_rev_only_kT)+20,
+    plt.plot(ToX(landscape_rev_only.q),sanit(landscape_rev_only_kT)+offset_kT,
              "g--",label="Only Reverse")
     PlotUtilities.lazyLabel("","Free Energy (kT)",
                             "Hummer 2010, Figure 3")
