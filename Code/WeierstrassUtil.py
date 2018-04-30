@@ -201,9 +201,9 @@ def get_slice(data,j,n):
     """
     Length = data.Force.size
     n_per_float = Length/n
-    offset_per_curve = int(np.floor(n_per_float))
+    _offset_per_curve = n_per_float
     data_per_curve = int(np.floor(n_per_float))
-    offset = j*offset_per_curve
+    offset = int(np.floor(j*_offset_per_curve))
     s = slice(offset,offset+data_per_curve,1)
     return s
    
