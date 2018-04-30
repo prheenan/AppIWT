@@ -201,7 +201,7 @@ def get_slice(data,j,n):
     """
     Length = data.Force.size
     n_per_float = Length/n
-    offset_per_curve = int(np.round(n_per_float))
+    offset_per_curve = int(np.floor(n_per_float))
     data_per_curve = int(np.floor(n_per_float))
     offset = j*offset_per_curve
     s = slice(offset,offset+data_per_curve,1)
@@ -256,8 +256,8 @@ def _check_slices(single_dir):
     if (n == 0):
         return
     expected_sizes = np.ones(n) * single_dir[0].Force.size
-    np.testing.assert_allclose(expected_sizes,
-                               [d.Force.size for d in single_dir])
+    actual_sizes = [d.Force.size for d in single_dir]
+    np.testing.assert_allclose(expected_sizes,actual_sizes)
 
 def _iwt_ramping_splitter(data,number_of_pairs,kT,v,
                           flip_forces=False,**kw):
