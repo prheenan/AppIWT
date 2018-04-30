@@ -319,6 +319,24 @@ def iwt_ramping_experiment(*args,**kw):
         _iwt_ramping_helper(*args,**kw)
     return LandscapeObj
 
+def _spline_filter(x,y,bins=None,num_bins=100,k=3,**kw):
+    min_x, max_x = min(x), max(x)
+    if (bins is None):
+        # fit a spline at the given bins
+        bins = np.linspace(min_x,max_x,endpoint=True,num=num_bins)
+    # determine where the bins are in the range of the data for this landscape
+    good_idx = np.where((bins >= min_x) & (bins <= max_x))
+    bins_relevant = bins[good_idx]
+    """
+    exclude the first and last bins, to make sure the Schoenberg-Whitney 
+    condition is met for all interior knots (see: 
+docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.LSQUnivariateSpline
+    """
+    t = bins_relevant[1:-1]
+    kw = dict(x=x, t=t, k=k, **kw)
+    return LSQUnivariateSpline(y=y, **kw)
+
+
 def _filter_single_landscape(landscape_obj,bins,k=3,ext='const',**kw):
     """
     filters landscape_obj using a smooth splineaccording to bins. 
@@ -332,25 +350,12 @@ def _filter_single_landscape(landscape_obj,bins,k=3,ext='const',**kw):
         a filtered version of landscae_obj
     """
     to_ret = copy.deepcopy(landscape_obj)
-    # fit a spline at the given bins
-    x = to_ret.q
-    min_x,max_x = min(x),max(x)
-    # determine where the bins are in the range of the data for this landscape
-    good_idx =np.where( (bins >= min_x) & (bins <= max_x))
-    bins_relevant = bins[good_idx]
-    """
-    exclude the first and last bins, to make sure the Schoenberg-Whitney 
-    condition is met for all interior knots (see: 
-docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.LSQUnivariateSpline
-    """
-    t = bins_relevant[1:-1]
-    kw = dict(x=x,t=t,ext=ext,k=k,**kw)
-    f_spline = lambda y_tmp: LSQUnivariateSpline(y=y_tmp,**kw)
+    f_spline = lambda y_tmp: _spline_filter(y=y_tmp,x=to_ret.q,bins=bins,
+                                            k=k, ext=ext,**kw)
     spline_energy = f_spline(to_ret.energy)
     f_filter = lambda y_tmp_filter: f_spline(y_tmp_filter)(bins)
     # the new q is just the bins
     # filter each energy property
-    to_ret.q = bins
     to_ret.energy = spline_energy(bins)
     to_ret.A_z = f_filter(to_ret.A_z)
     to_ret.A_z_dot = f_filter(to_ret.A_z_dot)
@@ -359,6 +364,7 @@ docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.LSQUnivariateSpli
     # dont allow the second derivative to go <= 0...
     to_ret.one_minus_A_z_ddot_over_k = \
             np.maximum(0,to_ret.one_minus_A_z_ddot_over_k)
+    to_ret.q = bins
     # remove the 'data' property from the spline; otherwise it is too much
     # to store
     residual = spline_energy.get_residual()
