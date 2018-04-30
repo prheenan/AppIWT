@@ -8,9 +8,9 @@ from __future__ import unicode_literals
 import numpy as np
 import matplotlib.pyplot as plt
 import sys,copy
-from scipy.interpolate import LSQUnivariateSpline
 
 from . import InverseWeierstrass
+from .UtilLandscape import BidirectionalUtil
 
 def _default_slice_func(obj,s):
     """
@@ -319,22 +319,6 @@ def iwt_ramping_experiment(*args,**kw):
         _iwt_ramping_helper(*args,**kw)
     return LandscapeObj
 
-def _spline_filter(x,y,bins=None,num_bins=100,k=3,**kw):
-    min_x, max_x = min(x), max(x)
-    if (bins is None):
-        # fit a spline at the given bins
-        bins = np.linspace(min_x,max_x,endpoint=True,num=num_bins)
-    # determine where the bins are in the range of the data for this landscape
-    good_idx = np.where((bins >= min_x) & (bins <= max_x))
-    bins_relevant = bins[good_idx]
-    """
-    exclude the first and last bins, to make sure the Schoenberg-Whitney 
-    condition is met for all interior knots (see: 
-docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.LSQUnivariateSpline
-    """
-    t = bins_relevant[1:-1]
-    kw = dict(x=x, t=t, k=k, **kw)
-    return LSQUnivariateSpline(y=y, **kw)
 
 
 def _filter_single_landscape(landscape_obj,bins,k=3,ext='const',**kw):
@@ -350,6 +334,7 @@ def _filter_single_landscape(landscape_obj,bins,k=3,ext='const',**kw):
         a filtered version of landscae_obj
     """
     to_ret = copy.deepcopy(landscape_obj)
+    _spline_filter = BidirectionalUtil._spline_filter
     f_spline = lambda y_tmp: _spline_filter(y=y_tmp,x=to_ret.q,bins=bins,
                                             k=k, ext=ext,**kw)
     spline_energy = f_spline(to_ret.energy)
