@@ -8,9 +8,9 @@ from __future__ import unicode_literals
 import numpy as np
 import matplotlib.pyplot as plt
 import sys,copy
-from scipy.interpolate import LSQUnivariateSpline
 
 from . import InverseWeierstrass
+from .UtilLandscape import BidirectionalUtil
 
 def _default_slice_func(obj,s):
     """
@@ -201,9 +201,9 @@ def get_slice(data,j,n):
     """
     Length = data.Force.size
     n_per_float = Length/n
-    offset_per_curve = int(np.round(n_per_float))
+    _offset_per_curve = n_per_float
     data_per_curve = int(np.floor(n_per_float))
-    offset = j*offset_per_curve
+    offset = int(np.floor(j*_offset_per_curve))
     s = slice(offset,offset+data_per_curve,1)
     return s
    
@@ -256,23 +256,30 @@ def _check_slices(single_dir):
     if (n == 0):
         return
     expected_sizes = np.ones(n) * single_dir[0].Force.size
-    np.testing.assert_allclose(expected_sizes,
-                               [d.Force.size for d in single_dir])
+    actual_sizes = [d.Force.size for d in single_dir]
+    np.testing.assert_allclose(expected_sizes,actual_sizes)
 
-def iwt_ramping_experiment(data,number_of_pairs,kT,v,
-                           flip_forces=False,**kw):
+def _iwt_ramping_splitter(data,number_of_pairs,kT,v,
+                          flip_forces=False,**kw):
+    """
+    :param data: single force-extension curve
+    :param number_of_pairs:  how many back and forth ramps there are
+    :param kT: beta,  boltzmann energy, J
+    :param v: velocity, m/s
+    :param flip_forces: if true, multiply all the forces by -1
+    :param kw: keywords to use
+    :return: tuple of unfolding objs,refolding objs
     """
 
-    """
-    assert 'z_0' in kw , "Must provide z_0"
-    unfold,refold = \
+    assert 'z_0' in kw, "Must provide z_0"
+    unfold, refold = \
         get_unfold_and_refold_objects(data,
                                       number_of_pairs=number_of_pairs,
                                       flip_forces=flip_forces,
-                                      kT=kT,v=v,
-                                      unfold_start_idx=0,**kw)
-    n_un,n_re = len(unfold),len(refold)
-    assert n_un + n_re > 0 , "Need some unfolding or refolding data"
+                                      kT=kT, v=v,
+                                      unfold_start_idx=0, **kw)
+    n_un, n_re = len(unfold), len(refold)
+    assert n_un + n_re > 0, "Need some unfolding or refolding data"
     # do some data checking
     _check_slices(unfold)
     _check_slices(refold)
@@ -285,20 +292,34 @@ def iwt_ramping_experiment(data,number_of_pairs,kT,v,
     n_per_float = (n_data / number_of_pairs)
     upper_bound = int(np.ceil(n_per_float))
     if n_un and n_re:
-        _check_slices([unfold[0],refold[0]])
-        assert 2*n <= upper_bound , "Didn't actually slice the data"
+        _check_slices([unfold[0], refold[0]])
+        assert 2 * n <= upper_bound, "Didn't actually slice the data"
         # make sure we used all the data, +/- 2 per slice
-        np.testing.assert_allclose(2*n,np.floor(n_per_float),atol=2,rtol=0)
+        np.testing.assert_allclose(2 * n, np.floor(n_per_float), atol=2, rtol=0)
     else:
         list_to_check = unfold if n_un > 0 else refold
         sizes_actual = [d.Force.size for d in list_to_check]
         sizes_exp = np.ones(len(sizes_actual)) * upper_bound
-        np.testing.assert_allclose(sizes_actual,sizes_exp,
-                                   atol=number_of_pairs-1)
+        np.testing.assert_allclose(sizes_actual, sizes_exp,
+                                   atol=number_of_pairs - 1)
+    return unfold, refold
+
+def _iwt_ramping_helper(*args,**kw):
+    """
+    :param *args, **kwargs: see  _iwt_ramping_splitter
+    """
+    unfold, refold =  _iwt_ramping_splitter(*args,**kw)
     # POST: have the unfolding and refolding objects, get the energy landscape
-    LandscapeObj =  InverseWeierstrass.\
-            free_energy_inverse_weierstrass(unfold,refold)  
+    LandscapeObj = InverseWeierstrass. \
+        free_energy_inverse_weierstrass(unfold, refold)
+    return unfold, refold, LandscapeObj
+
+def iwt_ramping_experiment(*args,**kw):
+    _, _, LandscapeObj = \
+        _iwt_ramping_helper(*args,**kw)
     return LandscapeObj
+
+
 
 def _filter_single_landscape(landscape_obj,bins,k=3,ext='const',**kw):
     """
@@ -313,25 +334,13 @@ def _filter_single_landscape(landscape_obj,bins,k=3,ext='const',**kw):
         a filtered version of landscae_obj
     """
     to_ret = copy.deepcopy(landscape_obj)
-    # fit a spline at the given bins
-    x = to_ret.q
-    min_x,max_x = min(x),max(x)
-    # determine where the bins are in the range of the data for this landscape
-    good_idx =np.where( (bins >= min_x) & (bins <= max_x))
-    bins_relevant = bins[good_idx]
-    """
-    exclude the first and last bins, to make sure the Schoenberg-Whitney 
-    condition is met for all interior knots (see: 
-docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.LSQUnivariateSpline
-    """
-    t = bins_relevant[1:-1]
-    kw = dict(x=x,t=t,ext=ext,k=k,**kw)
-    f_spline = lambda y_tmp: LSQUnivariateSpline(y=y_tmp,**kw)
+    _spline_filter = BidirectionalUtil._spline_filter
+    f_spline = lambda y_tmp: _spline_filter(y=y_tmp,x=to_ret.q,bins=bins,
+                                            k=k, ext=ext,**kw)
     spline_energy = f_spline(to_ret.energy)
     f_filter = lambda y_tmp_filter: f_spline(y_tmp_filter)(bins)
     # the new q is just the bins
     # filter each energy property
-    to_ret.q = bins
     to_ret.energy = spline_energy(bins)
     to_ret.A_z = f_filter(to_ret.A_z)
     to_ret.A_z_dot = f_filter(to_ret.A_z_dot)
@@ -340,6 +349,7 @@ docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.LSQUnivariateSpli
     # dont allow the second derivative to go <= 0...
     to_ret.one_minus_A_z_ddot_over_k = \
             np.maximum(0,to_ret.one_minus_A_z_ddot_over_k)
+    to_ret.q = bins
     # remove the 'data' property from the spline; otherwise it is too much
     # to store
     residual = spline_energy.get_residual()
