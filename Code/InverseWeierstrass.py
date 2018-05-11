@@ -15,6 +15,8 @@ from scipy.interpolate import splev,LSQUnivariateSpline
 from .UtilLandscape.BidirectionalUtil import \
     Exp, NumericallyGetDeltaA, Exp, ForwardWeighted,ReverseWeighted
 
+from .UtilLandscape import BidirectionalUtil
+
 
 class _WorkWeighted(object):
     def __init__(self,objs,work_offset):
@@ -62,7 +64,7 @@ def first_deriv_term(A_z_dot,k):
 def second_deriv_term(one_minus_A_z_ddot_over_k,beta):
     return 1/(2*beta) * np.log(one_minus_A_z_ddot_over_k)
 
-class Landscape(object):
+class Landscape(BidirectionalUtil._BaseLandscape):
     def __init__(self,q,kT,k,z,
                  free_energy_A,A_z_dot,one_minus_A_z_ddot_over_k):
         """
@@ -75,15 +77,16 @@ class Landscape(object):
         :param one_minus_A_z_ddot_over_k: ibid, length N
         """
         self.k = k
-        self.q = q
         self.A_z = free_energy_A
         self.A_z_dot = A_z_dot
         self._z = z
         self.one_minus_A_z_ddot_over_k = one_minus_A_z_ddot_over_k
-        self.kT = kT
-        self.energy = self.A_z + self.first_deriv_term + self.second_deriv_term
         # later we can add a spline fit.
         self.spline_fit = None
+        beta_tmp = 1/kT
+        self.beta = beta_tmp
+        G0_tmp = self.A_z + self.first_deriv_term + self.second_deriv_term
+        super(Landscape,self).__init__(q=q,beta=1/beta_tmp,G0=G0_tmp)
     def offset_energy(self,energy_offset):
         refs = [self.energy,
                 self.A_z,
@@ -116,12 +119,6 @@ class Landscape(object):
         A_z_ddot_over_k = 1 - self.one_minus_A_z_ddot_over_k
         A_z_ddot = A_z_ddot_over_k * self.k
         return A_z_ddot
-    @property
-    def beta(self):
-        return 1/self.kT
-    @property
-    def G_0(self):
-        return self.energy
 
 def ZFuncSimple(obj):
     return obj.Offset + (obj.Velocity * (obj.Time-obj.Time[0]))
