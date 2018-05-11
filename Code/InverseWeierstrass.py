@@ -119,6 +119,17 @@ class Landscape(BidirectionalUtil._BaseLandscape):
         A_z_ddot_over_k = 1 - self.one_minus_A_z_ddot_over_k
         A_z_ddot = A_z_ddot_over_k * self.k
         return A_z_ddot
+    def _slice(self,s):
+        sanit = lambda tmp: tmp.copy()[s]
+        ddot_term = sanit(self.one_minus_A_z_ddot_over_k)
+        to_ret = Landscape(q=sanit(self.q),
+                           kT=self.kT,
+                           k=self.k,
+                           z=sanit(self.z),
+                           free_energy_A=sanit(self.free_energy_A),
+                           A_z_dot=sanit(self.A_z_dot),
+                           one_minus_A_z_ddot_over_k=ddot_term)
+        return to_ret
 
 def ZFuncSimple(obj):
     return obj.Offset + (obj.Velocity * (obj.Time-obj.Time[0]))
