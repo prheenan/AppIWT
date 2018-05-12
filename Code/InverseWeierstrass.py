@@ -126,7 +126,7 @@ class Landscape(BidirectionalUtil._BaseLandscape):
                            kT=self.kT,
                            k=self.k,
                            z=sanit(self.z),
-                           free_energy_A=sanit(self.free_energy_A),
+                           free_energy_A=sanit(self.A_z),
                            A_z_dot=sanit(self.A_z_dot),
                            one_minus_A_z_ddot_over_k=ddot_term)
         return to_ret
