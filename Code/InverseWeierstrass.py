@@ -176,13 +176,17 @@ class FEC_Pulling_Object(object):
     def Separation(self,s):
         self.Extension = s
     def _slice(self,s):
+        sanit = lambda x: x[s].copy()
         z_old = self.ZFunc(self)
         new_offset = z_old[s][0]
-        self.Time = self.Time[s]
-        self.Force = self.Force[s]
-        self.Extension = self.Extension[s]
-        self.SetOffsetAndVelocity(new_offset,self.Velocity)
-        return self
+        to_ret = FEC_Pulling_Object(Time=sanit(self.Time),
+                                    Extension=sanit(self.Extension),
+                                    Force=sanit(self.Force),
+                                    SpringConstant=self.SpringConstant,
+                                    Velocity=self.Velocity,Offset=new_offset,
+                                    kT=self.kT)
+        to_ret.SetOffsetAndVelocity(new_offset,self.Velocity)
+        return to_ret
     def update_work(self):
         """
         Updates the internal work variable

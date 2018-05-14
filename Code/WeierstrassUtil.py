@@ -229,7 +229,7 @@ def convert_list_to_iwt(time_sep_force_list,**kwargs):
     return [convert_to_iwt(d) for d in time_sep_force_list]
 
 
-def RobTimeSepForceToIWT(o,v,**kw):
+def RobTimeSepForceToIWT(o,v,Offset=0,**kw):
     """
     converts a Rob-Walder style pull into a FEC_Pulling_Object
 
@@ -247,7 +247,7 @@ def RobTimeSepForceToIWT(o,v,**kw):
                                                 Force=o.Force,
                                                 SpringConstant=k,
                                                 Velocity=v,
-                                                Offset=0,**kw)
+                                                Offset=Offset,**kw)
     return Obj
     
 

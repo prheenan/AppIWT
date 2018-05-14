@@ -314,6 +314,9 @@ def check_iwt_obj(exp,act,**tolerance_kwargs):
     np.testing.assert_allclose(actual_params,expected_params,rtol=1e-3)
     # make sure the work matches
     np.testing.assert_allclose(act.Work,exp.Work)
+    # ibid, force
+    np.testing.assert_allclose(act.Force,exp.Force)
+
 
 
 def _assert_negative(expected,functor,atol=0,rtol=1e-6,min_loss_fraction=0.3):
@@ -467,11 +470,19 @@ def _check_command_line(f,state_fwd,state_rev,single,landscape_both,
         check_iwt_obj(rev,rev_orig,**tolerance_kwargs)
     # make the sure 'rob-style' stuff works OK
     k = single.SpringConstant
-    del single.__dict__["SpringConstant"]
     single.K = k
     unfold_rob,refold_rob = \
             WeierstrassUtil.get_unfold_and_refold_objects(single,
                                                           **kwargs)
+    for list_v in [unfold_rob,refold_rob]:
+        for u in list_v:
+            tmp = u._slice(slice(0,None,1))
+            k = tmp.SpringConstant
+            del tmp.__dict__["SpringConstant"]
+            tmp.K = k
+            iwt_safe = WeierstrassUtil.safe_iwt_obj(tmp, v=u.Velocity,
+                                                    Offset=u.Offset)
+            check_iwt_obj(iwt_safe, u)
     # make the sure unfolding objects match
     for u_r,r_r,u_exp,r_exp in zip(unfold_rob,refold_rob,state_fwd_o,
                                    state_rev_o):
