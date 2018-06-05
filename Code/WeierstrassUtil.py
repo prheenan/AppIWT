@@ -206,21 +206,19 @@ def get_slice(data,j,n):
     offset = int(np.floor(j*_offset_per_curve))
     s = slice(offset,offset+data_per_curve,1)
     return s
-   
-def convert_to_iwt(time_sep_force,frac_vel=0.1):
+
+def convert_to_iwt(time_sep_force,**kw):
     """
-    Converts a TimeSepForce object into a iwt object (assuming just one 
+    Converts a TimeSepForce object into a iwt object (assuming just one
     direction)
-    
+
     Args:
         time_sep_force: to convert
-        frac_vel: the fractional number of points to use for getting the    
-        (assumed constant) velocity
     Returns:
-        iwt_object 
+        iwt_object
     """
-    iwt_data = ToIWTObject(time_sep_force)
-    return iwt_data    
+    iwt_data = ToIWTObject(time_sep_force,**kw)
+    return iwt_data
     
 def convert_list_to_iwt(time_sep_force_list,**kwargs):
     """
