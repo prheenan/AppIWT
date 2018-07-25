@@ -175,6 +175,9 @@ class FEC_Pulling_Object(object):
     @Separation.setter
     def Separation(self,s):
         self.Extension = s
+    @property
+    def ZSnsr(self):
+        return self.ZFunc(self)
     def _slice(self,s):
         sanit = lambda x: x[s].copy()
         z_old = self.ZFunc(self)
