@@ -161,6 +161,9 @@ class FEC_Pulling_Object:
     @property
     def Separation(self):
         return self.Extension
+    @property
+    def ZSnsr(self):
+        return self.ZFunc(self)
     def _slice(self,s):
         z_old = self.ZFunc(self)
         new_offset = z_old[s][0]
