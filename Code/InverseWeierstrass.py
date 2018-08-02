@@ -16,7 +16,7 @@ from .UtilLandscape.BidirectionalUtil import \
     Exp, NumericallyGetDeltaA, Exp, ForwardWeighted,ReverseWeighted
 
 from .UtilLandscape import BidirectionalUtil
-
+import warnings
 
 class _WorkWeighted(object):
     def __init__(self,objs,work_offset):
@@ -178,6 +178,11 @@ class FEC_Pulling_Object(object):
     @property
     def ZSnsr(self):
         return self.ZFunc(self)
+    @ZSnsr.setter
+    def ZSnsr(self,z):
+        msg = "IWT: Setting ZSnsr may do unexpected things (OK for plotting)"
+        warnings.warn(msg)
+        self.ZFunc = lambda *args: z
     def _slice(self,s):
         sanit = lambda x: x[s].copy()
         z_old = self.ZFunc(self)
