@@ -86,7 +86,7 @@ class Landscape(BidirectionalUtil._BaseLandscape):
         beta_tmp = 1/kT
         self.beta = beta_tmp
         G0_tmp = self.A_z + self.first_deriv_term + self.second_deriv_term
-        super(Landscape,self).__init__(q=q,beta=1/beta_tmp,G0=G0_tmp)
+        super(Landscape,self).__init__(q=q,beta=beta_tmp,G0=G0_tmp)
     def offset_energy(self,energy_offset):
         refs = [self.energy,
                 self.A_z,
