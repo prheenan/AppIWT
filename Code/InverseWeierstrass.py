@@ -253,7 +253,8 @@ def SetAllWorkOfObjects(PullingObjects):
     """
     # calculate and set the work for each object
     _ = [o.update_work() for o in PullingObjects]
-def _check_inputs(objects,expected_inputs,f_input):
+
+def _check_inputs(objects,expected_inputs,f_input,atol=0,rtol=1e-3):
     """
     ensures that all of objects have a consistent z and size
 
@@ -265,7 +266,7 @@ def _check_inputs(objects,expected_inputs,f_input):
     Returns:
         nothing, throws an error if something was wrong
     """
-    error_kw = dict(atol=0,rtol=1e-3)
+    error_kw = dict(atol=atol,rtol=rtol)
     for i,u in enumerate(objects):
         actual_data = f_input(u)
         err_data = "iwt needs all objects to have the same properties.\n" + \
@@ -342,7 +343,7 @@ def get_work_weighted_object(objs,delta_A=0,offset=0,**kw):
     return to_ret
 
 
-def _assert_inputs_valid(unfolding,refolding):
+def _assert_inputs_valid(unfolding,refolding,**kw):
     n_f = len(unfolding)
     n_r = len(refolding)
     assert n_r+n_f > 0 , "Need at least one object"
@@ -361,8 +362,8 @@ def _assert_inputs_valid(unfolding,refolding):
     # greater extension than the barrier)
     z_large = max(z0,zf)
     refolding_inputs = [z_large,-abs(v)] + unfolding_inputs[2:]
-    _check_inputs(unfolding,unfolding_inputs,input_check)
-    _check_inputs(refolding,refolding_inputs,input_check)
+    _check_inputs(unfolding,unfolding_inputs,input_check,**kw)
+    _check_inputs(refolding,refolding_inputs,input_check,**kw)
 
 def _safe_len(x):
     try:
@@ -408,15 +409,17 @@ def get_offsets(o_fwd,o_rev,delta_A):
     return 0,0
         
 
-def free_energy_inverse_weierstrass(unfolding=[],refolding=[]):
+def free_energy_inverse_weierstrass(unfolding=[],refolding=[],
+                                    kw_inputs=dict()):
     """
     return free energy associated with the forward pulling direction,
     as defined in Minh, 2008, and hummer, PNAS, 2010
 
     Args:
         <un/re>folding: list of unfolding and refolding objects to use
+        :param kw_inputs: passed to _assert_inputs_valid
     """
-    _assert_inputs_valid(unfolding,refolding)
+    _assert_inputs_valid(unfolding,refolding,**kw_inputs)
     # POST: inputs are OK, and have at least one unfolding or refolding trace 
     # get the free energy change between the states (or zero, if none)
     n_f,n_r = len(unfolding),len(refolding)
