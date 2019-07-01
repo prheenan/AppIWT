@@ -364,6 +364,10 @@ def _assert_inputs_valid(unfolding,refolding,**kw):
     refolding_inputs = [z_large,-abs(v)] + unfolding_inputs[2:]
     _check_inputs(unfolding,unfolding_inputs,input_check,**kw)
     _check_inputs(refolding,refolding_inputs,input_check,**kw)
+    # POST: all look pretty reasonable, check the sizes are consistent
+    if len(unfolding) > 0 and len(refolding) > 0:
+        assert unfolding[0].Time.size == refolding[0].Time.size , \
+            "Unfolding and refolding curves are different sizes."
 
 def _safe_len(x):
     try:
